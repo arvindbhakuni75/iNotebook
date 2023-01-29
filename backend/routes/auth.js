@@ -15,10 +15,11 @@ router.post('/createuser',[
     body('email', "Enter a valid email").isEmail(),
     body('password', "Password lenght must be 5").isLength({ min: 5 }),
 ], async (req, res)=> {
+  let success = false; 
   //if there are errors, return bad request and the errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({success, errors: errors.array() });
     }
     
     try{
@@ -26,7 +27,7 @@ router.post('/createuser',[
     //check whether the user with this email exist already
     let user = await User.findOne({email: req.body.email});
     if(user){
-      return res.status(400).json({error: "Sorry a user with this email already exists"})
+      return res.status(400).json({success, error: "Sorry a user with this email already exists"})
     }
     // Create a new User
     const salt = await bcrypt.genSalt(10);
@@ -46,7 +47,8 @@ router.post('/createuser',[
       console.log(authtoken)
       
       //res.json(user)
-      res.json({authtoken})
+      success = true;
+      res.json({success, authtoken})
 
       //Catch error..
     } catch (error) {
@@ -62,7 +64,7 @@ router.post('/login',[
   body('email', "Enter a valid email").isEmail(),
   body('password', "Password cannot be blank").exists(),
 ], async (req, res)=> {
-
+    let success = false; 
    //if there are errors, return bad request and the errors
    const errors = validationResult(req);
    if (!errors.isEmpty()) {
@@ -74,11 +76,13 @@ router.post('/login',[
    try {
       let user = await User.findOne({email});
       if(!user){
-        return res.status(400).json({error: "Plese try to login with correct Credentials"});
+        success = false
+        return res.status(400).json({success, error: "Plese try to login with correct Credentials"});
       }
       const passwordCompare = await bcrypt.compare(password, user.password);
       if(!passwordCompare) {
-        return res.status(400).json({error: "Plese try to login with correct Credentials"});
+        success = false
+        return res.status(400).json({success, error: "Plese try to login with correct Credentials"});
       }
 
       const data = {
@@ -87,7 +91,8 @@ router.post('/login',[
         }
       }
       const authtoken = jwt.sign(data, JWT_SECRET);
-      res.json({authtoken})
+      success = true
+      res.json({success,authtoken})
 
    } catch (error) {
     console.log(error.message);
