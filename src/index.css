@@ -15,3 +15,8 @@ code {
 i{
   cursor: pointer;
 }
+
+.login {
+  display: flex;
+  justify-content: center;
+}

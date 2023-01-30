@@ -1,13 +1,17 @@
 
-import React,{useEffect} from 'react';
-import {Link, useLocation} from 'react-router-dom';
+import React from 'react';
+import {Link, useLocation, useNavigate} from 'react-router-dom';
 
 
 const Navbar = () => {
+  const navigate = useNavigate();
+  
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate.push('/login');
+  }
   const location = useLocation();
-  useEffect(() => {
-    
-  }, [location])
+
   return (
     <>
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -19,18 +23,17 @@ const Navbar = () => {
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
               <li className="nav-item">
-                <Link className={`nav-link ${location.pathname==="/"? "active":""} `} aria-current="page" to="/">Home</Link>
+                <Link className={`nav-link ${location.pathname==="/"? "active":""}`} aria-current="page" to="/" >Home</Link>
               </li>
               <li className="nav-item">
                 <Link className={`nav-link ${location.pathname==="/about"? "active":""} `} to="/about">About</Link>
               </li>
-              
             </ul>
-            <form className="d-flex">
-              
+
+            {!localStorage.getItem('token')? <form className="d-flex">
               <Link className="btn btn-success mx-1" to="/login" role="button">Login</Link>
               <Link className="btn btn-success mx-1" to="/signup" role="button">Signup</Link>
-            </form>
+            </form> : <Link onClick={handleLogout} className="btn btn-success mx-1" to="/login" role="button">Logout</Link>}
           </div>
         </div>
       </nav>
